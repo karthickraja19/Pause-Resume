@@ -21,8 +21,8 @@
 
             <Rectangle Width="302" Height="333" Fill="#d8c5b4" Canvas.Left="50" Canvas.Top="50" RenderTransformOrigin="0.791,0.627" />
             <Button Content="Download(↓)" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Content="Retry" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" />
+            <Button Content="Pause(||)" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Button Content="Retry(↻)" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" />
         </Canvas>
     </Grid>
 </Window>
