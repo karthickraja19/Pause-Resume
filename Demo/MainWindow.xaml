@@ -6,6 +6,31 @@
         xmlns:local="clr-namespace:Demo"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <Style x:Key="StyledButton" TargetType="Button">
+            <Setter Property="Background" Value="#efdfcf" />
+            <Setter Property="Foreground" Value="#6f514c" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                    CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -14,15 +39,15 @@
 
 
         <StackPanel Grid.Column="0" Background="LightGray">
-            <!-- Add your controls here -->
-            <TextBlock Text="Left Side" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" />
         </StackPanel>
         <Canvas Grid.Column="1" Background="White">
 
             <Rectangle Width="302" Height="333" Fill="#d8c5b4" Canvas.Left="50" Canvas.Top="50" RenderTransformOrigin="0.791,0.627" />
-            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Content="Retry" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" />
+            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" />
+            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" />
+            <Button Content="Retry" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}"/>
         </Canvas>
     </Grid>
 </Window>
