@@ -38,16 +38,22 @@
         </Grid.ColumnDefinitions>
 
 
-        <StackPanel Grid.Column="0" Background="LightGray">
-            
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" />
-        </StackPanel>
+        <Canvas Grid.Column="0" Background="LightGray">
+            <ComboBox Width="62" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top">
+               
+                <ComboBoxItem Content="Option 1"/>
+                <ComboBoxItem Content="Option 2"/>
+                <ComboBoxItem Content="Option 3"/>
+            </ComboBox>
+        </Canvas>
         <Canvas Grid.Column="1" Background="White">
 
             <Rectangle Width="302" Height="333" Fill="#d8c5b4" Canvas.Left="50" Canvas.Top="50" RenderTransformOrigin="0.791,0.627" />
-            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            <Button Content="Retry" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" />
+            <ProgressBar Name="progressBar" Width="200" Height="14" Canvas.Left="105" Canvas.Top="188" Minimum="0" Maximum="100" Value="50" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <TextBlock Canvas.Left="121" Canvas.Top="78" FontFamily="Times new roman" FontSize="20" Text="Download manager" Height="29" Width="160" HorizontalAlignment="Center"  VerticalAlignment="Top" />
+            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Click="Button_Click" />
+            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"/>
+            <Button Content="Retry" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}"/>
         </Canvas>
     </Grid>
 </Window>
