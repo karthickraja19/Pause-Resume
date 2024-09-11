@@ -40,7 +40,6 @@
 
         <Canvas Grid.Column="0" Background="LightGray">
             <ComboBox Width="62" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top">
-               
                 <ComboBoxItem Content="Option 1"/>
                 <ComboBoxItem Content="Option 2"/>
                 <ComboBoxItem Content="Option 3"/>
