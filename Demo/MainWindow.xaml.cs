@@ -19,6 +19,14 @@ namespace Demo
         public MainWindow()
         {
             InitializeComponent();
+            //comboBox.ItemsSource = new List<string> { "All Files", "Completed Files", "Incomplete Files" };
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            MessageBox.Show($"{menuItem.Header} clicked");
+        }
+
     }
 }
