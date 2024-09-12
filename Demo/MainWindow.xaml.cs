@@ -14,61 +14,85 @@ using static System.Net.WebRequestMethods;
 
 namespace Demo
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+
     public partial class MainWindow : Window
     {
+
+        private CancellationTokenSource _cancellationTokenSource;
+        private long _downloadedBytes = 0;
+        private string _url = "https://examplefile.com/text/txt/400-mb-txt";
+        private string _filePath = @"C:\Users\2270395\Downloads";
+        private string _fileName = "downloadedFile.pdf";
+        private string _destinationPath;
+
         public MainWindow()
         {
             InitializeComponent();
-            //comboBox.ItemsSource = new List<string> { "All Files", "Completed Files", "Incomplete Files" };
+            _destinationPath = Path.Combine(_filePath, _fileName);
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private async void Download_ClickButtonAsync(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = sender as MenuItem;
-            MessageBox.Show($"{menuItem.Header} clicked");
-        }
-        private async  void Download_ClickButtonAsync(object sender, RoutedEventArgs e)
-        {
-            string url = "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf";
-            string filePath = @"C:\\download manager";
-            string fileExtension = Path.GetExtension(url);
-            string fileName = "downloadedFile" + fileExtension;
-            string destinationPath = Path.Combine(filePath, fileName);
+            _cancellationTokenSource = new CancellationTokenSource();
             try
             {
-                await DownloadFileAsync(url, destinationPath);
+                await DownloadFileAsync(_url, _destinationPath, _cancellationTokenSource.Token);
                 MessageBox.Show("File downloaded successfully!");
+            }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("Download paused!");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
-        private void DownloadButton_MouseEnter(object sender, MouseEventArgs e)
+
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            DownloadButton.Background = new SolidColorBrush(Colors.LightGreen);
+            _cancellationTokenSource?.Cancel();
         }
 
-        private void DownloadButton_MouseLeave(object sender, MouseEventArgs e)
+        private async void ResumeButton_Click(object sender, RoutedEventArgs e)
         {
-            DownloadButton.Background = new SolidColorBrush(Colors.LightGray);
+            _cancellationTokenSource = new CancellationTokenSource();
+            try
+            {
+                await DownloadFileAsync(_url, _destinationPath, _cancellationTokenSource.Token);
+                MessageBox.Show("File downloaded successfully!");
+            }
+            catch (OperationCanceledException)
+            {
+                MessageBox.Show("Download paused!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
         }
 
-
-        private async Task DownloadFileAsync(string url, string filePath)
+        private async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken)
         {
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(0, null);
-                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                // Resume download from where it was paused
+                client.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(_downloadedBytes, null);
+                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                 {
                     response.EnsureSuccessStatusCode();
-                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(), fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 8192, true))
                     {
-                        await contentStream.CopyToAsync(fileStream);
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                                throw new OperationCanceledException();
+
+                            await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+                            _downloadedBytes += bytesRead;
+                        }
                     }
                 }
             }
