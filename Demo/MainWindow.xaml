@@ -39,8 +39,8 @@
 
 
         <Canvas Grid.Column="0" Background="LightGray">
-			<DockPanel>
-				<!--<Menu DockPanel.Dock="Top">
+            <DockPanel>
+                <!--<Menu DockPanel.Dock="Top">
 					<MenuItem Header="_File">
 						<MenuItem Header="_New" Click="MenuItem_Click" />
 						<MenuItem Header="_Open" Click="MenuItem_Click" />
@@ -59,24 +59,24 @@
 						<MenuItem Header="_About" Click="MenuItem_Click" />
 					</MenuItem>
 				</Menu>-->
-				<ComboBox Name="comboBox" Width="200" Height="30" VerticalAlignment="Top" Margin="10">
-					<ComboBoxItem Content="All Files" />
-					<ComboBoxItem Content="Completed Files" />
-					<ComboBoxItem Content="Incomplete Files" />
-				</ComboBox>
-			</DockPanel>
+                <ComboBox Name="comboBox" Width="200" Height="30" VerticalAlignment="Top" Margin="10">
+                    <ComboBoxItem Content="All Files" />
+                    <ComboBoxItem Content="Completed Files" />
+                    <ComboBoxItem Content="Incomplete Files" />
+                </ComboBox>
+            </DockPanel>
         </Canvas>
         <Canvas Grid.Column="1" Background="White">
 
             <Rectangle Width="302" Height="333" Fill="#d8c5b4" Canvas.Left="50" Canvas.Top="50" RenderTransformOrigin="0.791,0.627" />
             <ProgressBar Name="progressBar" Width="234" Height="24" Minimum="0" Maximum="100" Value="{Binding DownloadProgress}" Canvas.Left="91" Canvas.Top="169" HorizontalAlignment="Left" VerticalAlignment="Top" />
-            <Border Background="#8596d2" Padding="5" Canvas.Left="186" Canvas.Top="198" HorizontalAlignment="Left" VerticalAlignment="Center" Width="38" Height="38" RenderTransformOrigin="0.54,0.616">
-            <TextBlock Text="{Binding DownloadPercentage, StringFormat={}{0}%}" HorizontalAlignment="Center"/>
+            <Border Background="#8596d2" Padding="5" Canvas.Left="176" Canvas.Top="199" HorizontalAlignment="Left" VerticalAlignment="Center" Width="64" Height="25" RenderTransformOrigin="0.482,0.563">
+                <TextBlock Text="{Binding DownloadPercentage}" HorizontalAlignment="Center"/>
             </Border>
             <TextBlock Canvas.Left="121" Canvas.Top="78" FontFamily="Times new roman" FontSize="20" Text="Download manager" Height="29" Width="160" HorizontalAlignment="Center"  VerticalAlignment="Top" />
             <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="DownloadButton" Click="Download_ClickButtonAsync" />
-			<Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Click="PauseButton_Click"/>
-            <Button Content="Retry" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click"/>
+            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Click="PauseButton_Click"/>
+            <Button Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click"/>
         </Canvas>
     </Grid>
 </Window>
