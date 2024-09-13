@@ -84,9 +84,9 @@
                 <TextBlock Text="{Binding DownloadPercentage}" HorizontalAlignment="Center"/>
             </Border>
             <TextBlock Canvas.Left="121" Canvas.Top="78" FontFamily="Times new roman" FontSize="20" Text="Download Manager" Height="29" Width="160" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-			<TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
 			<TextBlock Canvas.Left="70" Canvas.Top="145" Text="Path:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
 			<TextBox Name="UrlTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="110" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
+			<TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
 			<TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
 			<Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="DownloadButton" Click="Download_ClickButtonAsync" />
             <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click"/>
