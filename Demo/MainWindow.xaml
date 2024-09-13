@@ -27,7 +27,17 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter Property="Background" Value="LightBlue" />
+				</Trigger>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter Property="Background" Value="Gray" />
+				</Trigger>
+			</Style.Triggers>
         </Style>
+		
+			
     </Window.Resources>
 
 
@@ -73,10 +83,14 @@
             <Border Background="#8596d2" Padding="5" Canvas.Left="176" Canvas.Top="199" HorizontalAlignment="Left" VerticalAlignment="Center" Width="64" Height="25" RenderTransformOrigin="0.482,0.563">
                 <TextBlock Text="{Binding DownloadPercentage}" HorizontalAlignment="Center"/>
             </Border>
-            <TextBlock Canvas.Left="121" Canvas.Top="78" FontFamily="Times new roman" FontSize="20" Text="Download manager" Height="29" Width="160" HorizontalAlignment="Center"  VerticalAlignment="Top" />
-            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="DownloadButton" Click="Download_ClickButtonAsync" />
-            <Button Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Click="PauseButton_Click"/>
-            <Button Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click"/>
+            <TextBlock Canvas.Left="121" Canvas.Top="78" FontFamily="Times new roman" FontSize="20" Text="Download Manager" Height="29" Width="160" HorizontalAlignment="Center"  VerticalAlignment="Top" />
+			<TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
+			<TextBlock Canvas.Left="70" Canvas.Top="145" Text="Path:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
+			<TextBox Name="UrlTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="110" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
+			<TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
+			<Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="DownloadButton" Click="Download_ClickButtonAsync" />
+            <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click"/>
+            <Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click"/>
         </Canvas>
     </Grid>
 </Window>

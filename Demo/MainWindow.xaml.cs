@@ -13,10 +13,8 @@ namespace Demo
         private CancellationTokenSource _cancellationTokenSource;
         private long _downloadedBytes = 0;
         private long _totalBytes = 0;
-        private string _url = "https://github.com/szalony9szymek/large/releases/download/free/large";
-        private string _filePath = @"C:\Users\2270395\Downloads";
-        private string _fileName = "downloadedFile.pdf";
-        private string _destinationPath;
+        private string _url;
+        private string _filePath;
         private double _downloadProgress;
         private string _downloadPercentage;
 
@@ -25,9 +23,7 @@ namespace Demo
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this; 
-
-            _destinationPath = Path.Combine(_filePath, _fileName);
+            DataContext = this;
         }
 
         public double DownloadProgress
@@ -50,6 +46,26 @@ namespace Demo
             }
         }
 
+        public string Url
+        {
+            get => _url;
+            set
+            {
+                _url = value;
+                OnPropertyChanged(nameof(Url));
+            }
+        }
+
+        public string FilePath
+        {
+            get => _filePath;
+            set
+            {
+                _filePath = value;
+                OnPropertyChanged(nameof(FilePath));
+            }
+        }
+
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -59,10 +75,15 @@ namespace Demo
         {
             ResetDownloadProgress();
             _cancellationTokenSource = new CancellationTokenSource();
+            DownloadButton.IsEnabled = false;
+            PauseButton.IsEnabled = true;
+            ResumeButton.IsEnabled = false;
+
+            string destinationPath = Path.Combine(FilePath, "downloadedFile.pdf");
 
             try
             {
-                await DownloadFileAsync(_url, _destinationPath, _cancellationTokenSource.Token);
+                await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
                 MessageBox.Show("File downloaded successfully!");
             }
             catch (OperationCanceledException)
@@ -72,21 +93,33 @@ namespace Demo
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                DownloadButton.IsEnabled = true;
+                PauseButton.IsEnabled = false;
+                ResumeButton.IsEnabled = true;
             }
         }
 
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            _cancellationTokenSource?.Cancel(); 
+            _cancellationTokenSource?.Cancel();
+            PauseButton.IsEnabled = false;
+            ResumeButton.IsEnabled = true;
         }
 
         private async void ResumeButton_Click(object sender, RoutedEventArgs e)
         {
             _cancellationTokenSource = new CancellationTokenSource();
+            PauseButton.IsEnabled = true;
+            ResumeButton.IsEnabled = false;
+
+            string destinationPath = Path.Combine(FilePath, "downloadedFile.pdf");
 
             try
             {
-                await DownloadFileAsync(_url, _destinationPath, _cancellationTokenSource.Token);
+                await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
                 MessageBox.Show("File downloaded successfully!");
             }
             catch (OperationCanceledException)
@@ -96,6 +129,12 @@ namespace Demo
             catch (Exception ex)
             {
                 MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                DownloadButton.IsEnabled = false;
+                PauseButton.IsEnabled = true;
+                ResumeButton.IsEnabled = false;
             }
         }
 
@@ -103,14 +142,12 @@ namespace Demo
         {
             using (HttpClient client = new HttpClient())
             {
-                
                 if (File.Exists(filePath))
                 {
                     FileInfo fileInfo = new FileInfo(filePath);
-                    _downloadedBytes = fileInfo.Length; 
+                    _downloadedBytes = fileInfo.Length;
                 }
 
-                
                 if (_downloadedBytes > 0)
                 {
                     client.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(_downloadedBytes, null);
