@@ -18,6 +18,9 @@ namespace Demo
         private double _downloadProgress;
         private string _downloadPercentage;
 
+        
+        private static readonly HttpClient client = new HttpClient();
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public MainWindow()
@@ -140,27 +143,34 @@ namespace Demo
 
         private async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken)
         {
-            using (HttpClient client = new HttpClient())
+            
+            if (File.Exists(filePath))
             {
-                if (File.Exists(filePath))
-                {
-                    FileInfo fileInfo = new FileInfo(filePath);
-                    _downloadedBytes = fileInfo.Length;
-                }
+                FileInfo fileInfo = new FileInfo(filePath);
+                _downloadedBytes = fileInfo.Length;
+            }
 
-                if (_downloadedBytes > 0)
-                {
-                    client.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(_downloadedBytes, null);
-                }
+            
+            if (_downloadedBytes > 0)
+            {
+                client.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(_downloadedBytes, null);
+            }
 
-                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
+            {
+                response.EnsureSuccessStatusCode();
+                _totalBytes = _downloadedBytes + response.Content.Headers.ContentLength.GetValueOrDefault();
+
+        
+                if (response.Headers.AcceptRanges != null && response.Headers.AcceptRanges.Equals("bytes"))
                 {
-                    response.EnsureSuccessStatusCode();
-                    _totalBytes = _downloadedBytes + response.Content.Headers.ContentLength.GetValueOrDefault();
                     using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
-                        fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 8192, true))
+                        fileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 4096, true))
                     {
-                        byte[] buffer = new byte[8192];
+                       
+                        fileStream.Seek(_downloadedBytes, SeekOrigin.Begin);
+
+                        byte[] buffer = new byte[4096]; // Reduced buffer size for faster resume
                         int bytesRead;
 
                         while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
@@ -170,10 +180,13 @@ namespace Demo
 
                             await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                             _downloadedBytes += bytesRead;
-
                             UpdateProgress(_downloadedBytes, _totalBytes);
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("Server does not support resuming downloads.");
                 }
             }
         }
@@ -184,6 +197,7 @@ namespace Demo
 
             if (progress > 100)
                 progress = 100;
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 DownloadProgress = progress;
