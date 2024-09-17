@@ -105,9 +105,8 @@
             <TextBox Name="UrlTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="110" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
             <TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
             <TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
-            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="DownloadButton" Click="Download_ClickButtonAsync" />
-            <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click"/>
-            <Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click"/>
-        </Canvas>
+            <Button Content="Download" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="DownloadButton" Click="Download_ClickButtonAsync" IsEnabled="{Binding IsDownloadEnabled}" />
+            <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click" IsEnabled="{Binding IsPauseEnabled}"/>
+			<Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click" IsEnabled="{Binding IsResumeEnabled}"/></Canvas>
     </Grid>
 </Window>

@@ -24,12 +24,16 @@ namespace Demo
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
-            FilteredFiles = _allFiles;  
+            FilteredFiles = _allFiles;
+            UpdateButtonStates();
         }
+       
 
         public double DownloadProgress
         {
@@ -70,6 +74,9 @@ namespace Demo
                 OnPropertyChanged(nameof(FilePath));
             }
         }
+        public bool IsDownloadEnabled { get; set; } = true;
+        public bool IsPauseEnabled { get; set; } = false;
+        public bool IsResumeEnabled { get; set; } = false;
 
         private List<DownloadFile> _filteredFilesList;
 
@@ -87,83 +94,110 @@ namespace Demo
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
+        private void UpdateButtonStates()
+        {
+            OnPropertyChanged(nameof(IsDownloadEnabled));
+            OnPropertyChanged(nameof(IsPauseEnabled));
+            OnPropertyChanged(nameof(IsResumeEnabled));
+        }
         private async void Download_ClickButtonAsync(object sender, RoutedEventArgs e)
         {
+            IsDownloadEnabled = false;
+            IsPauseEnabled = true;
+            IsResumeEnabled = false;
+            UpdateButtonStates();
             ResetDownloadProgress();
+
             _cancellationTokenSource = new CancellationTokenSource();
 
             string fileName = GetFileNameFromUrl(Url);
             string destinationPath = Path.Combine(FilePath, fileName);
             var downloadFile = new DownloadFile { FileName = fileName, FilePath = destinationPath, Status = "Downloading" };
 
-            _allFiles.Add(downloadFile);  
-            FilterFiles(); 
+            _allFiles.Add(downloadFile);
+            FilterFiles();
 
             try
             {
                 await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
                 downloadFile.Status = "Completed";
-                _completedFiles.Add(downloadFile);  
-                _incompleteFiles.Remove(downloadFile);  
+                _completedFiles.Add(downloadFile);
+                _incompleteFiles.Remove(downloadFile);
             }
             catch (OperationCanceledException)
             {
                 downloadFile.Status = "Incomplete";
                 if (!_incompleteFiles.Contains(downloadFile))
-                    _incompleteFiles.Add(downloadFile);  
+                    _incompleteFiles.Add(downloadFile);
             }
             finally
             {
-                FilterFiles();  
+                FilterFiles();
+                FilterFiles();
+                IsDownloadEnabled = true;
+                IsPauseEnabled = false;
+                IsResumeEnabled = false;
+                UpdateButtonStates();
             }
         }
 
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            _cancellationTokenSource?.Cancel();  
+            _cancellationTokenSource?.Cancel();
             MessageBox.Show("Download paused!");
+            IsDownloadEnabled = false;
+            IsPauseEnabled = false;
+            IsResumeEnabled = true;
+            UpdateButtonStates();
         }
 
         private async void ResumeButton_Click(object sender, RoutedEventArgs e)
         {
+            IsDownloadEnabled = false;
+            IsPauseEnabled = true;
+            IsResumeEnabled = false;
+            UpdateButtonStates();
             _cancellationTokenSource = new CancellationTokenSource();
 
             string fileName = GetFileNameFromUrl(Url);
             string destinationPath = Path.Combine(FilePath, fileName);
 
-            
+
             var downloadFile = _incompleteFiles.Find(f => f.FilePath == destinationPath);
             if (downloadFile != null)
             {
                 downloadFile.Status = "Downloading";
                 _incompleteFiles.Remove(downloadFile);
                 if (!_allFiles.Contains(downloadFile))
-                    _allFiles.Add(downloadFile);  
+                    _allFiles.Add(downloadFile);
             }
 
             try
             {
                 await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
                 downloadFile.Status = "Completed";
-                _completedFiles.Add(downloadFile);  
-                _incompleteFiles.Remove(downloadFile);  
+                _completedFiles.Add(downloadFile);
+                _incompleteFiles.Remove(downloadFile);
             }
             catch (OperationCanceledException)
             {
                 downloadFile.Status = "Incomplete";
                 if (!_incompleteFiles.Contains(downloadFile))
-                    _incompleteFiles.Add(downloadFile);  
+                    _incompleteFiles.Add(downloadFile);
             }
             finally
             {
                 FilterFiles();
+                IsDownloadEnabled = true;
+                IsPauseEnabled = false;
+                IsResumeEnabled = false;
+                UpdateButtonStates();
             }
         }
 
         private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            FilterFiles();  
+            FilterFiles();
         }
 
         private void FilterFiles()
@@ -243,18 +277,18 @@ namespace Demo
             DownloadPercentage = "0.00%";
         }
 
-        
+
         private string GetFileNameFromUrl(string url)
         {
             return Path.GetFileName(new Uri(url).AbsolutePath);
         }
     }
 
-    
+
     public class DownloadFile
     {
         public string FileName { get; set; }
         public string FilePath { get; set; }
-        public string Status { get; set; }  
+        public string Status { get; set; }
     }
 }
