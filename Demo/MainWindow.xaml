@@ -71,20 +71,20 @@
 				</Menu>-->
 
             <StackPanel Margin="10">
-                <!-- ComboBox for file filter -->
+                
                 <ComboBox Name="comboBox" Width="200" Height="30" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged">
                     <ComboBoxItem Content="All Files" />
                     <ComboBoxItem Content="Completed Files" />
                     <ComboBoxItem Content="Incomplete Files" />
                 </ComboBox>
 
-                <!-- ListBox to display filtered files -->
-                <ListBox Name="FilesListBox" Width="380" Height="370" ItemsSource="{Binding FilteredFiles}">
+                
+                <ListBox Name="FilesListBox" Width="380" Height="370" ItemsSource="{Binding FilteredFiles}" SelectionChanged="FilesListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
-                                <TextBlock Text="{Binding FileName}" />
-                                <TextBlock Text="{Binding Status}" FontSize="10" />
+                                <TextBlock Text="{Binding FileName}" FontWeight="Bold" />
+                                <TextBlock Text="{Binding Status}" FontSize="12" />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -102,15 +102,15 @@
             </Border>
             <TextBlock Canvas.Left="121" Canvas.Top="78" FontFamily="Times new roman" FontSize="20" Text="Download Manager" Height="29" Width="160" HorizontalAlignment="Center"  VerticalAlignment="Top" />
             <TextBlock Canvas.Left="70" Canvas.Top="145" Text="Path:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
-            <TextBox Name="UrlTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="110" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
+            <TextBox Name="UrlTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="110" Text="{Binding Url,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
             <TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
-            <TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
-			<Button Content="↓" FontSize="20" Width="25" Height="28" Canvas.Left="297" Canvas.Top="130" Style="{StaticResource StyledButton}" Background="LightGreen"  Name="DownloadButton" Click="Download_ClickButtonAsync" IsEnabled="{Binding IsDownloadEnabled}" />
-			<Button Content="Retry" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="RetryButton" />
+            <TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
+            <Button Content="↓" FontSize="20" Width="25" Height="28" Canvas.Left="297" Canvas.Top="130" Style="{StaticResource StyledButton}" Background="LightGreen"  Name="DownloadButton" Click="Download_ClickButtonAsync" IsEnabled="{Binding IsDownloadEnabled}" />
+            <Button Content="Retry" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="RetryButton" />
             <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click" IsEnabled="{Binding IsPauseEnabled}"/>
-			<Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click" IsEnabled="{Binding IsResumeEnabled}"/>
-			<!-- Cancel Button -->
-			<Button Name="CancelButton" Content="Cancel" Width="50" Height="20" Canvas.Left="285" Canvas.Top="50" Style="{StaticResource StyledButton}" Background="Red" Foreground="White" Click="CancelButton_Click" />
-		</Canvas>
+            <Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click" IsEnabled="{Binding IsResumeEnabled}"/>
+            <!-- Cancel Button -->
+            <Button Name="CancelButton" Content="Cancel" Width="50" Height="20" Canvas.Left="285" Canvas.Top="50" Style="{StaticResource StyledButton}" Background="Red" Foreground="White" Click="CancelButton_Click" />
+        </Canvas>
     </Grid>
 </Window>

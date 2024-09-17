@@ -33,7 +33,7 @@ namespace Demo
             FilteredFiles = _allFiles;
             UpdateButtonStates();
         }
-       
+
 
         public double DownloadProgress
         {
@@ -112,7 +112,14 @@ namespace Demo
 
             string fileName = GetFileNameFromUrl(Url);
             string destinationPath = Path.Combine(FilePath, fileName);
-            var downloadFile = new DownloadFile { FileName = fileName, FilePath = destinationPath, Status = "Downloading" };
+
+            var downloadFile = new DownloadFile
+            {
+                FileName = fileName,
+                FilePath = destinationPath,
+                Url = Url,  // Set the URL here
+                Status = "Downloading"
+            };
 
             _allFiles.Add(downloadFile);
             FilterFiles();
@@ -132,7 +139,6 @@ namespace Demo
             }
             finally
             {
-                FilterFiles();
                 FilterFiles();
                 IsDownloadEnabled = true;
                 IsPauseEnabled = false;
@@ -216,19 +222,49 @@ namespace Demo
         private void FilterFiles()
         {
             var selectedFilter = (comboBox.SelectedItem as System.Windows.Controls.ComboBoxItem)?.Content.ToString();
+            switch (selectedFilter)
+            {
+                case "Completed Files":
+                    FilteredFiles = _completedFiles;
+                    foreach (var file in _completedFiles)
+                    {
+                        file.Status = "Completed";
+                        file.DownloadedBytes = file.TotalBytes; 
+                    }
+                    break;
+                case "Incomplete Files":
+                    FilteredFiles = _incompleteFiles;
+                    UpdateProgressForIncompleteFiles();
+                    break;
+                default:
+                    FilteredFiles = _allFiles;
+                    ResetDownloadProgress();
+                    break;
+            }
+            OnPropertyChanged(nameof(FilteredFiles));
+        }
 
-            if (selectedFilter == "Completed Files")
+        private void UpdateProgressForIncompleteFiles()
+        {
+            foreach (var file in _incompleteFiles)
             {
-                FilteredFiles = _completedFiles;
+                if (File.Exists(file.FilePath))
+                {
+                    FileInfo fileInfo = new FileInfo(file.FilePath);
+                    file.DownloadedBytes = fileInfo.Length;
+                }
+
+                if (file.TotalBytes > 0)
+                {
+                    double progress = (double)file.DownloadedBytes / file.TotalBytes * 100;
+                    file.Status = $"Downloading: {progress:0.00}%";
+                }
+                else
+                {
+                    file.Status = "Not Started";
+                }
             }
-            else if (selectedFilter == "Incomplete Files")
-            {
-                FilteredFiles = _incompleteFiles;
-            }
-            else
-            {
-                FilteredFiles = _allFiles;
-            }
+            OnPropertyChanged(nameof(FilteredFiles));
         }
 
         private async Task DownloadFileAsync(string url, string filePath, CancellationToken cancellationToken)
@@ -264,6 +300,13 @@ namespace Demo
                             await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                             _downloadedBytes += bytesRead;
 
+                            
+                            var file = _incompleteFiles.FirstOrDefault(f => f.FilePath == filePath);
+                            if (file != null)
+                            {
+                                file.DownloadedBytes = _downloadedBytes;
+                                file.TotalBytes = _totalBytes;
+                            }
                             UpdateProgress(_downloadedBytes, _totalBytes);
                         }
                     }
@@ -277,9 +320,17 @@ namespace Demo
 
             if (progress > 100)
                 progress = 100;
+
             Application.Current.Dispatcher.Invoke(() =>
             {
-                DownloadProgress = progress;
+                var file = _allFiles.FirstOrDefault(f => f.FilePath == FilePath);
+                if (file != null)
+                {
+                    file.DownloadedBytes = downloadedBytes;
+                    file.TotalBytes = totalBytes;
+                }
+                progressBar.Maximum = totalBytes;
+                progressBar.Value = downloadedBytes;
                 DownloadPercentage = $"{progress:0.00}%";
             });
         }
@@ -295,6 +346,51 @@ namespace Demo
         {
             return Path.GetFileName(new Uri(url).AbsolutePath);
         }
+
+        private void FilesListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            var selectedFile = FilesListBox.SelectedItem as DownloadFile;
+
+            if (selectedFile != null)
+            {
+                // Update the URL and FilePath to show in the TextBoxes
+                Url = selectedFile.Url;
+                FilePath = selectedFile.FilePath;
+
+                // Handle the progress bar for completed and incomplete files
+                if (selectedFile.Status == "Completed")
+                {
+                    // Show 100% for completed files
+                    progressBar.Maximum = 100;
+                    progressBar.Value = 100;
+                    DownloadPercentage = "100.00%";
+                }
+                else if (selectedFile.Status == "Incomplete" && selectedFile.TotalBytes > 0)
+                {
+                    // Calculate progress for incomplete files
+                    double progress = (double)selectedFile.DownloadedBytes / selectedFile.TotalBytes * 100;
+                    progressBar.Maximum = selectedFile.TotalBytes; // Set max to total bytes
+                    progressBar.Value = selectedFile.DownloadedBytes; // Set current value to downloaded bytes
+                    DownloadPercentage = $"{progress:0.00}%"; // Show percentage
+                }
+                else
+                {
+                    // Handle the case where no valid data is available
+                    progressBar.Value = 0;
+                    progressBar.Maximum = 100; // Fallback value
+                    DownloadPercentage = "0.00%";
+                }
+            }
+            else
+            {
+                // Handle the case where no file is selected
+                progressBar.Value = 0;
+                progressBar.Maximum = 100; // Default fallback value
+                DownloadPercentage = "0.00%";
+                Url = string.Empty;
+                FilePath = string.Empty;
+            }
+        }
     }
 
 
@@ -302,6 +398,11 @@ namespace Demo
     {
         public string FileName { get; set; }
         public string FilePath { get; set; }
+        public string Url { get; set; } // Add this line
         public string Status { get; set; }
+        public long DownloadedBytes { get; set; }
+        public long TotalBytes { get; set; }
     }
+
+
 }
