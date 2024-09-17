@@ -195,6 +195,19 @@ namespace Demo
             }
         }
 
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            _cancellationTokenSource?.Cancel();
+            //MessageBox.Show("Download canceled!");
+            ResetDownloadProgress();
+            Url = string.Empty;
+            FilePath = string.Empty;
+            IsDownloadEnabled = true;
+            IsPauseEnabled = false;
+            IsResumeEnabled = false;
+            UpdateButtonStates();
+        }
+
         private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             FilterFiles();
