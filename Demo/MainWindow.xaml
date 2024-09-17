@@ -71,12 +71,24 @@
 				</Menu>-->
 
             <StackPanel Margin="10">
-                <ComboBox x:Name="comboBox" Width="200" Height="30" SelectionChanged="ComboBox_SelectionChanged">
+                <!-- ComboBox for file filter -->
+                <ComboBox Name="comboBox" Width="200" Height="30" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged">
                     <ComboBoxItem Content="All Files" />
                     <ComboBoxItem Content="Completed Files" />
                     <ComboBoxItem Content="Incomplete Files" />
                 </ComboBox>
-                <ListBox x:Name="FilesListBox" Width="377" Height="369" ItemsSource="{Binding FilteredFiles}" />
+
+                <!-- ListBox to display filtered files -->
+                <ListBox Name="FilesListBox" Width="380" Height="370" ItemsSource="{Binding FilteredFiles}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding FileName}" />
+                                <TextBlock Text="{Binding Status}" FontSize="10" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </Canvas>
 
