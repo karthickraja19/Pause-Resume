@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,6 +33,31 @@ namespace Demo
             DataContext = this;
             FilteredFiles = _allFiles;
             UpdateButtonStates();
+
+            NetworkChange.NetworkAvailabilityChanged += NetworkAvailabilityChanged;
+        }
+
+        private void NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+        {
+            if (!e.IsAvailable)
+            {
+                
+                Application.Current.Dispatcher.Invoke(() => PauseDownloadOnNetworkLoss());
+            }
+        }
+
+        private void PauseDownloadOnNetworkLoss()
+        {
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel(); 
+                MessageBox.Show("Your system is offline. The download is paused.", "Network Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                IsDownloadEnabled = false;
+                IsPauseEnabled = false;
+                IsResumeEnabled = true;
+                UpdateButtonStates();
+            }
         }
 
 
@@ -353,42 +379,91 @@ namespace Demo
 
             if (selectedFile != null)
             {
-                // Update the URL and FilePath to show in the TextBoxes
+                
                 Url = selectedFile.Url;
                 FilePath = selectedFile.FilePath;
 
-                // Handle the progress bar for completed and incomplete files
+                
                 if (selectedFile.Status == "Completed")
                 {
-                    // Show 100% for completed files
+                    
                     progressBar.Maximum = 100;
                     progressBar.Value = 100;
                     DownloadPercentage = "100.00%";
                 }
                 else if (selectedFile.Status == "Incomplete" && selectedFile.TotalBytes > 0)
                 {
-                    // Calculate progress for incomplete files
+                    
                     double progress = (double)selectedFile.DownloadedBytes / selectedFile.TotalBytes * 100;
-                    progressBar.Maximum = selectedFile.TotalBytes; // Set max to total bytes
-                    progressBar.Value = selectedFile.DownloadedBytes; // Set current value to downloaded bytes
-                    DownloadPercentage = $"{progress:0.00}%"; // Show percentage
+                    progressBar.Maximum = selectedFile.TotalBytes; 
+                    progressBar.Value = selectedFile.DownloadedBytes; 
+                    DownloadPercentage = $"{progress:0.00}%"; 
                 }
                 else
                 {
-                    // Handle the case where no valid data is available
+                   
                     progressBar.Value = 0;
-                    progressBar.Maximum = 100; // Fallback value
+                    progressBar.Maximum = 100; 
                     DownloadPercentage = "0.00%";
                 }
             }
             else
             {
-                // Handle the case where no file is selected
+                
                 progressBar.Value = 0;
-                progressBar.Maximum = 100; // Default fallback value
+                progressBar.Maximum = 100; 
                 DownloadPercentage = "0.00%";
                 Url = string.Empty;
                 FilePath = string.Empty;
+            }
+        }
+
+        private async void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            await ResumeDownload();
+
+        }
+
+        private async Task ResumeDownload()
+        {
+            IsDownloadEnabled = false;
+            IsPauseEnabled = true;
+            IsResumeEnabled = false;
+            UpdateButtonStates();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            string fileName = GetFileNameFromUrl(Url);
+            string destinationPath = Path.Combine(FilePath, fileName);
+
+            var downloadFile = _incompleteFiles.Find(f => f.FilePath == destinationPath);
+            if (downloadFile != null)
+            {
+                downloadFile.Status = "Downloading";
+                _incompleteFiles.Remove(downloadFile);
+                if (!_allFiles.Contains(downloadFile))
+                    _allFiles.Add(downloadFile);
+            }
+
+            try
+            {
+                await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
+                downloadFile.Status = "Completed";
+                _completedFiles.Add(downloadFile);
+                _incompleteFiles.Remove(downloadFile);
+            }
+            catch (OperationCanceledException)
+            {
+                downloadFile.Status = "Incomplete";
+                if (!_incompleteFiles.Contains(downloadFile))
+                    _incompleteFiles.Add(downloadFile);
+            }
+            finally
+            {
+                FilterFiles();
+                IsDownloadEnabled = true;
+                IsPauseEnabled = false;
+                IsResumeEnabled = false;
+                UpdateButtonStates();
             }
         }
     }
@@ -398,7 +473,7 @@ namespace Demo
     {
         public string FileName { get; set; }
         public string FilePath { get; set; }
-        public string Url { get; set; } // Add this line
+        public string Url { get; set; }
         public string Status { get; set; }
         public long DownloadedBytes { get; set; }
         public long TotalBytes { get; set; }
