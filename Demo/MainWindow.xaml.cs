@@ -55,7 +55,7 @@ namespace Demo
 
                 IsDownloadEnabled = false;
                 IsPauseEnabled = false;
-                IsResumeEnabled = true;
+                IsResumeEnabled = false;
                 UpdateButtonStates();
             }
         }
@@ -264,7 +264,7 @@ namespace Demo
                     break;
                 default:
                     FilteredFiles = _allFiles;
-                    ResetDownloadProgress();
+                    //ResetDownloadProgress();
                     break;
             }
             OnPropertyChanged(nameof(FilteredFiles));
@@ -282,12 +282,12 @@ namespace Demo
 
                 if (file.TotalBytes > 0)
                 {
-                    double progress = (double)file.DownloadedBytes / file.TotalBytes * 100;
+                    double progress = (double)((file.DownloadedBytes / file.TotalBytes) * 100);
                     file.Status = $"Downloading: {progress:0.00}%";
                 }
-                else
+                else if(file.TotalBytes==0)
                 {
-                    file.Status = "Not Started";
+                    file.Status = "Paused";
                 }
             }
             OnPropertyChanged(nameof(FilteredFiles));
