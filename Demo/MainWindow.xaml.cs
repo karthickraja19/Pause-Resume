@@ -136,14 +136,14 @@ namespace Demo
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            string fileName = GetFileNameFromUrl(Url);
-            string destinationPath = Path.Combine(FilePath, fileName);
+            string fileName = GetFileNameFromUrl(Url);  // Extract the file name from the URL
+            string destinationPath = FilePath;  // Just the directory
 
             var downloadFile = new DownloadFile
             {
-                FileName = fileName,
-                FilePath = destinationPath,
-                Url = Url,  // Set the URL here
+                FileName = fileName,  // Store the file name separately
+                FilePath = destinationPath,  // Store the directory path
+                Url = Url,
                 Status = "Downloading"
             };
 
@@ -152,7 +152,7 @@ namespace Demo
 
             try
             {
-                await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
+                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);  // Use the full path here
                 downloadFile.Status = "Completed";
                 _completedFiles.Add(downloadFile);
                 _incompleteFiles.Remove(downloadFile);
@@ -192,10 +192,9 @@ namespace Demo
             _cancellationTokenSource = new CancellationTokenSource();
 
             string fileName = GetFileNameFromUrl(Url);
-            string destinationPath = Path.Combine(FilePath, fileName);
+            string destinationPath = FilePath;  // Only the directory path
 
-
-            var downloadFile = _incompleteFiles.Find(f => f.FilePath == destinationPath);
+            var downloadFile = _incompleteFiles.Find(f => f.FullPath == Path.Combine(destinationPath, fileName));
             if (downloadFile != null)
             {
                 downloadFile.Status = "Downloading";
@@ -206,7 +205,7 @@ namespace Demo
 
             try
             {
-                await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
+                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);  // Use the full path here
                 downloadFile.Status = "Completed";
                 _completedFiles.Add(downloadFile);
                 _incompleteFiles.Remove(downloadFile);
@@ -381,37 +380,34 @@ namespace Demo
             {
                 
                 Url = selectedFile.Url;
-                FilePath = selectedFile.FilePath;
+                FilePath = selectedFile.FilePath; 
+                string fullPath = selectedFile.FullPath;
 
-                
+               
                 if (selectedFile.Status == "Completed")
                 {
-                    
                     progressBar.Maximum = 100;
                     progressBar.Value = 100;
                     DownloadPercentage = "100.00%";
                 }
                 else if (selectedFile.Status == "Incomplete" && selectedFile.TotalBytes > 0)
                 {
-                    
                     double progress = (double)selectedFile.DownloadedBytes / selectedFile.TotalBytes * 100;
-                    progressBar.Maximum = selectedFile.TotalBytes; 
-                    progressBar.Value = selectedFile.DownloadedBytes; 
-                    DownloadPercentage = $"{progress:0.00}%"; 
+                    progressBar.Maximum = selectedFile.TotalBytes;
+                    progressBar.Value = selectedFile.DownloadedBytes;
+                    DownloadPercentage = $"{progress:0.00}%";
                 }
                 else
                 {
-                   
                     progressBar.Value = 0;
-                    progressBar.Maximum = 100; 
+                    progressBar.Maximum = 100;
                     DownloadPercentage = "0.00%";
                 }
             }
             else
             {
-                
                 progressBar.Value = 0;
-                progressBar.Maximum = 100; 
+                progressBar.Maximum = 100;
                 DownloadPercentage = "0.00%";
                 Url = string.Empty;
                 FilePath = string.Empty;
@@ -471,12 +467,14 @@ namespace Demo
 
     public class DownloadFile
     {
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
+        public string FileName { get; set; } 
+        public string FilePath { get; set; } 
         public string Url { get; set; }
         public string Status { get; set; }
         public long DownloadedBytes { get; set; }
         public long TotalBytes { get; set; }
+
+        public string FullPath => Path.Combine(FilePath, FileName); 
     }
 
 
