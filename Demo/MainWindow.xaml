@@ -110,7 +110,7 @@
             <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click" IsEnabled="{Binding IsPauseEnabled}"/>
             <Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click" IsEnabled="{Binding IsResumeEnabled}"/>
             <!-- Cancel Button -->
-            <Button Name="CancelButton" Content="Cancel" Width="50" Height="20" Canvas.Left="285" Canvas.Top="50" Style="{StaticResource StyledButton}" Background="Red" Foreground="White" Click="CancelButton_Click" />
+            <Button Name="CancelButton" Content="Abort" Width="50" Height="20" Canvas.Left="285" Canvas.Top="50" Style="{StaticResource StyledButton}" Background="Red" Foreground="White" Click="CancelButton_Click" />
         </Canvas>
     </Grid>
 </Window>
