@@ -31,7 +31,10 @@ namespace Demo
         {
             InitializeComponent();
             DataContext = this;
-            FilteredFiles = _allFiles;
+
+            FilteredFiles = _allFiles; 
+            comboBox.SelectedIndex = 0; 
+            FilterFiles(); 
             UpdateButtonStates();
 
             NetworkChange.NetworkAvailabilityChanged += NetworkAvailabilityChanged;
@@ -136,23 +139,26 @@ namespace Demo
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            string fileName = GetFileNameFromUrl(Url);  // Extract the file name from the URL
-            string destinationPath = FilePath;  // Just the directory
+            string fileName = GetFileNameFromUrl(Url);  
+            string destinationPath = FilePath;  
 
             var downloadFile = new DownloadFile
             {
-                FileName = fileName,  // Store the file name separately
-                FilePath = destinationPath,  // Store the directory path
+                FileName = fileName, 
+                FilePath = destinationPath, 
                 Url = Url,
                 Status = "Downloading"
             };
 
             _allFiles.Add(downloadFile);
-            FilterFiles();
+
+            
+            comboBox.SelectedIndex = 0;  
+            FilterFiles();  
 
             try
             {
-                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);  // Use the full path here
+                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);  
                 downloadFile.Status = "Completed";
                 _completedFiles.Add(downloadFile);
                 _incompleteFiles.Remove(downloadFile);
@@ -177,10 +183,15 @@ namespace Demo
         {
             _cancellationTokenSource?.Cancel();
             MessageBox.Show("Download paused!");
+
             IsDownloadEnabled = false;
             IsPauseEnabled = false;
             IsResumeEnabled = true;
             UpdateButtonStates();
+
+            
+            comboBox.SelectedIndex = 0; 
+            FilterFiles();  
         }
 
         private async void ResumeButton_Click(object sender, RoutedEventArgs e)
@@ -254,7 +265,7 @@ namespace Demo
                     foreach (var file in _completedFiles)
                     {
                         file.Status = "Completed";
-                        file.DownloadedBytes = file.TotalBytes; 
+                        file.DownloadedBytes = file.TotalBytes;
                     }
                     break;
                 case "Incomplete Files":
@@ -262,8 +273,8 @@ namespace Demo
                     UpdateProgressForIncompleteFiles();
                     break;
                 default:
+                    
                     FilteredFiles = _allFiles;
-                    //ResetDownloadProgress();
                     break;
             }
             OnPropertyChanged(nameof(FilteredFiles));

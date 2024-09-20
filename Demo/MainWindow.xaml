@@ -71,14 +71,14 @@
 				</Menu>-->
 
             <StackPanel Margin="10">
-                
-                <ComboBox Name="comboBox" Width="200" Height="30" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged">
-                    <ComboBoxItem Content="All Files" />
+
+                <ComboBox x:Name="comboBox" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
+                    <ComboBoxItem Content="All Files" IsSelected="True" />
                     <ComboBoxItem Content="Completed Files" />
                     <ComboBoxItem Content="Incomplete Files" />
                 </ComboBox>
 
-                
+
                 <ListBox Name="FilesListBox" Width="380" Height="370" ItemsSource="{Binding FilteredFiles}" SelectionChanged="FilesListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
