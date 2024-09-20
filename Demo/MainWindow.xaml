@@ -106,10 +106,20 @@
             <TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
             <TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
             <Button Content="↓" FontSize="20" Width="25" Height="28" Canvas.Left="297" Canvas.Top="130" Style="{StaticResource StyledButton}" Background="LightGreen"  Name="DownloadButton" Click="Download_ClickButtonAsync" IsEnabled="{Binding IsDownloadEnabled}" />
-            <Button Content="Retry" Width="70" Height="30" Canvas.Left="75" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}" Name="RetryButton" Click="RetryButton_Click" />
+            <Button Content="Retry" 
+                    Width="70" 
+                    Height="30" 
+                    Canvas.Left="75" 
+                    Canvas.Top="235" 
+                    HorizontalAlignment="Left" 
+                    VerticalAlignment="Center" 
+                    Style="{StaticResource StyledButton}" 
+                    Name="RetryButton" 
+                    IsEnabled="{Binding IsRetryEnabled}"
+                    Click="RetryButton_Click" />
             <Button Name="PauseButton" Content="Pause" Width="70" Height="30" Canvas.Left="165" Canvas.Top="235" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource StyledButton}"  Click="PauseButton_Click" IsEnabled="{Binding IsPauseEnabled}"/>
             <Button Name="ResumeButton" Content="Resume" Width="70" Height="30" Canvas.Left="250" Canvas.Top="235" Style="{StaticResource StyledButton}" Click="ResumeButton_Click" IsEnabled="{Binding IsResumeEnabled}"/>
-            <!-- Cancel Button -->
+          
             <Button Name="CancelButton" Content="Clear" Width="50" Height="20" Canvas.Left="285" Canvas.Top="50" Style="{StaticResource StyledButton}" Background="Red" Foreground="White" Click="CancelButton_Click" />
         </Canvas>
     </Grid>

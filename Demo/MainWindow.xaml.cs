@@ -91,6 +91,7 @@ namespace Demo
             {
                 _url = value;
                 OnPropertyChanged(nameof(Url));
+                UpdateRetryButtonState();
             }
         }
 
@@ -101,6 +102,7 @@ namespace Demo
             {
                 _filePath = value;
                 OnPropertyChanged(nameof(FilePath));
+                UpdateRetryButtonState();
             }
         }
         public bool IsDownloadEnabled { get; set; } = true;
@@ -427,8 +429,38 @@ namespace Demo
 
         private async void RetryButton_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(Url))
+            {
+                MessageBox.Show("Please enter a valid URL.", "Missing URL", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(FilePath))
+            {
+                MessageBox.Show("Please enter a valid file path.", "Missing File Path", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             await ResumeDownload();
 
+        }
+
+        private bool _isRetryEnabled;
+
+        public bool IsRetryEnabled
+        {
+            get => _isRetryEnabled;
+            set
+            {
+                _isRetryEnabled = value;
+                OnPropertyChanged(nameof(IsRetryEnabled)); 
+            }
+        }
+
+        private void UpdateRetryButtonState()
+        {
+            IsRetryEnabled = !string.IsNullOrWhiteSpace(Url) && !string.IsNullOrWhiteSpace(FilePath);
+            OnPropertyChanged(nameof(IsRetryEnabled));
         }
 
         private async Task ResumeDownload()
