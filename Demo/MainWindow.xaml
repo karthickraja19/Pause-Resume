@@ -49,29 +49,7 @@
 
 
         <Canvas Grid.Column="0" Background="LightGray">
-
-            <!--<Menu DockPanel.Dock="Top">
-					<MenuItem Header="_File">
-						<MenuItem Header="_New" Click="MenuItem_Click" />
-						<MenuItem Header="_Open" Click="MenuItem_Click" />
-						<MenuItem Header="_Save" Click="MenuItem_Click" />
-						<Separator />
-						<MenuItem Header="Exit" Click="MenuItem_Click" />
-					</MenuItem>
-					<MenuItem Header="_Edit">
-						<MenuItem Header="_Undo" Click="MenuItem_Click" />
-						<MenuItem Header="_Redo" Click="MenuItem_Click" />
-					</MenuItem>
-					<MenuItem Header="_Tools">
-						<MenuItem Header="_Used" Click="MenuItem_Click" />
-					</MenuItem>
-					<MenuItem Header="_Help">
-						<MenuItem Header="_About" Click="MenuItem_Click" />
-					</MenuItem>
-				</Menu>-->
-
             <StackPanel Margin="10">
-
                 <ComboBox x:Name="comboBox" SelectionChanged="ComboBox_SelectionChanged" SelectedIndex="0">
                     <ComboBoxItem Content="All Files" IsSelected="True" />
                     <ComboBoxItem Content="Completed Files" />
@@ -105,7 +83,17 @@
             <TextBox Name="UrlTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="110" Text="{Binding Url,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
             <TextBlock Canvas.Left="70" Canvas.Top="115" Text="URL:" VerticalAlignment="Center" FontFamily="Times new roman" FontSize="12" />
             <TextBox Name="FilePathTextBox" Width="200" Height="25" Canvas.Left="100" Canvas.Top="137" Text="{Binding FilePath,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  Background="LightYellow" BorderBrush="LightBlue" BorderThickness="2" />
-            <Button Content="↓" FontSize="20" Width="25" Height="28" Canvas.Left="297" Canvas.Top="130" Style="{StaticResource StyledButton}" Background="LightGreen"  Name="DownloadButton" Click="Download_ClickButtonAsync" IsEnabled="{Binding IsDownloadEnabled}" />
+            <Button Content="↓" 
+                    FontSize="20" 
+                    Width="25" 
+                    Height="28" 
+                    Canvas.Left="297" 
+                    Canvas.Top="130" 
+                    Style="{StaticResource StyledButton}"                    
+                    Background="LightGreen"  
+                    Name="DownloadButton" 
+                    Click="Download_ClickButtonAsync" 
+                    IsEnabled="{Binding IsDownloadEnabled}" />
             <Button Content="Retry" 
                     Width="70" 
                     Height="30" 

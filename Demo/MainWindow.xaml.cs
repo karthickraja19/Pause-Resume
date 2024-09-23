@@ -32,9 +32,9 @@ namespace Demo
             InitializeComponent();
             DataContext = this;
 
-            FilteredFiles = _allFiles; 
-            comboBox.SelectedIndex = 0; 
-            FilterFiles(); 
+            FilteredFiles = _allFiles;
+            comboBox.SelectedIndex = 0;
+            FilterFiles();
             UpdateButtonStates();
 
             NetworkChange.NetworkAvailabilityChanged += NetworkAvailabilityChanged;
@@ -44,7 +44,7 @@ namespace Demo
         {
             if (!e.IsAvailable)
             {
-                
+
                 Application.Current.Dispatcher.Invoke(() => PauseDownloadOnNetworkLoss());
             }
         }
@@ -53,7 +53,7 @@ namespace Demo
         {
             if (_cancellationTokenSource != null)
             {
-                _cancellationTokenSource.Cancel(); 
+                _cancellationTokenSource.Cancel();
                 MessageBox.Show("Your system is offline. The download is paused.", "Network Error", MessageBoxButton.OK, MessageBoxImage.Warning);
 
                 IsDownloadEnabled = false;
@@ -141,26 +141,26 @@ namespace Demo
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            string fileName = GetFileNameFromUrl(Url);  
-            string destinationPath = FilePath;  
+            string fileName = GetFileNameFromUrl(Url);
+            string destinationPath = FilePath;
 
             var downloadFile = new DownloadFile
             {
-                FileName = fileName, 
-                FilePath = destinationPath, 
+                FileName = fileName,
+                FilePath = destinationPath,
                 Url = Url,
                 Status = "Downloading"
             };
 
             _allFiles.Add(downloadFile);
 
-            
-            comboBox.SelectedIndex = 0;  
-            FilterFiles();  
+
+            comboBox.SelectedIndex = 0;
+            FilterFiles();
 
             try
             {
-                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);  
+                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);
                 downloadFile.Status = "Completed";
                 _completedFiles.Add(downloadFile);
                 _incompleteFiles.Remove(downloadFile);
@@ -183,31 +183,41 @@ namespace Demo
 
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            _cancellationTokenSource?.Cancel();
-            MessageBox.Show("Download paused!");
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource?.Cancel();
+                MessageBox.Show("Download paused!");
 
-            IsDownloadEnabled = false;
-            IsPauseEnabled = false;
-            IsResumeEnabled = true;
-            UpdateButtonStates();
+                IsDownloadEnabled = false;
+                IsPauseEnabled = false;
+                IsResumeEnabled = true;
+                UpdateButtonStates();
+            }
+            else
+            {
+                MessageBox.Show("No active download to pause", "Pause error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
 
-            
-            comboBox.SelectedIndex = 0; 
-            FilterFiles();  
+            comboBox.SelectedIndex = 0;
+            FilterFiles();
         }
 
         private async void ResumeButton_Click(object sender, RoutedEventArgs e)
         {
+            // Ensure the cancellation token source is new on resume
             IsDownloadEnabled = false;
             IsPauseEnabled = true;
             IsResumeEnabled = false;
             UpdateButtonStates();
             _cancellationTokenSource = new CancellationTokenSource();
 
+            // Construct file name and path
             string fileName = GetFileNameFromUrl(Url);
-            string destinationPath = FilePath;  // Only the directory path
+            string destinationPath = Path.Combine(FilePath, fileName);
 
-            var downloadFile = _incompleteFiles.Find(f => f.FullPath == Path.Combine(destinationPath, fileName));
+            // Check if the download file exists in the incomplete files list
+            var downloadFile = _incompleteFiles.FirstOrDefault(f => f.FullPath == destinationPath);
+
             if (downloadFile != null)
             {
                 downloadFile.Status = "Downloading";
@@ -215,10 +225,15 @@ namespace Demo
                 if (!_allFiles.Contains(downloadFile))
                     _allFiles.Add(downloadFile);
             }
+            else
+            {
+                MessageBox.Show($"Download file not found for resuming at path: {destinationPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return; // Exit if the download file is not found
+            }
 
             try
             {
-                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);  // Use the full path here
+                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);
                 downloadFile.Status = "Completed";
                 _completedFiles.Add(downloadFile);
                 _incompleteFiles.Remove(downloadFile);
@@ -275,7 +290,7 @@ namespace Demo
                     UpdateProgressForIncompleteFiles();
                     break;
                 default:
-                    
+
                     FilteredFiles = _allFiles;
                     break;
             }
@@ -297,7 +312,7 @@ namespace Demo
                     double progress = (double)((file.DownloadedBytes / file.TotalBytes) * 100);
                     file.Status = $"Downloading: {progress:0.00}%";
                 }
-                else if(file.TotalBytes==0)
+                else if (file.TotalBytes == 0)
                 {
                     file.Status = "Paused";
                 }
@@ -324,6 +339,7 @@ namespace Demo
                 {
                     response.EnsureSuccessStatusCode();
                     _totalBytes = _downloadedBytes + response.Content.Headers.ContentLength.GetValueOrDefault();
+
                     using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
                         fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 8192, true))
                     {
@@ -338,7 +354,6 @@ namespace Demo
                             await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                             _downloadedBytes += bytesRead;
 
-                            
                             var file = _incompleteFiles.FirstOrDefault(f => f.FilePath == filePath);
                             if (file != null)
                             {
@@ -391,12 +406,12 @@ namespace Demo
 
             if (selectedFile != null)
             {
-                
+
                 Url = selectedFile.Url;
-                FilePath = selectedFile.FilePath; 
+                FilePath = selectedFile.FilePath;
                 string fullPath = selectedFile.FullPath;
 
-               
+
                 if (selectedFile.Status == "Completed")
                 {
                     progressBar.Maximum = 100;
@@ -453,7 +468,7 @@ namespace Demo
             set
             {
                 _isRetryEnabled = value;
-                OnPropertyChanged(nameof(IsRetryEnabled)); 
+                OnPropertyChanged(nameof(IsRetryEnabled));
             }
         }
 
@@ -466,15 +481,20 @@ namespace Demo
         private async Task ResumeDownload()
         {
             IsDownloadEnabled = false;
-            IsPauseEnabled = true;
+            IsPauseEnabled = true;  // Allow pausing immediately after resuming
             IsResumeEnabled = false;
             UpdateButtonStates();
+
             _cancellationTokenSource = new CancellationTokenSource();
 
             string fileName = GetFileNameFromUrl(Url);
             string destinationPath = Path.Combine(FilePath, fileName);
 
-            var downloadFile = _incompleteFiles.Find(f => f.FilePath == destinationPath);
+            // Debugging info
+            MessageBox.Show($"Attempting to resume download for file: {destinationPath}");
+
+            var downloadFile = _incompleteFiles.FirstOrDefault(f => f.FullPath == destinationPath);
+
             if (downloadFile != null)
             {
                 downloadFile.Status = "Downloading";
@@ -482,10 +502,15 @@ namespace Demo
                 if (!_allFiles.Contains(downloadFile))
                     _allFiles.Add(downloadFile);
             }
+            else
+            {
+                MessageBox.Show($"Download file not found for resuming at path: {destinationPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return; // Exit if the download file is not found
+            }
 
             try
             {
-                await DownloadFileAsync(Url, destinationPath, _cancellationTokenSource.Token);
+                await DownloadFileAsync(Url, downloadFile.FullPath, _cancellationTokenSource.Token);
                 downloadFile.Status = "Completed";
                 _completedFiles.Add(downloadFile);
                 _incompleteFiles.Remove(downloadFile);
@@ -498,27 +523,25 @@ namespace Demo
             }
             finally
             {
-                FilterFiles();
+                // Update the UI state after the download completes or is canceled
                 IsDownloadEnabled = true;
-                IsPauseEnabled = false;
-                IsResumeEnabled = false;
+                IsPauseEnabled = false;  // No longer in the downloading state
+                IsResumeEnabled = false;  // Can't resume if the download is completed or canceled
                 UpdateButtonStates();
             }
         }
     }
 
-
-    public class DownloadFile
+        public class DownloadFile
     {
-        public string FileName { get; set; } 
-        public string FilePath { get; set; } 
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
         public string Url { get; set; }
         public string Status { get; set; }
         public long DownloadedBytes { get; set; }
         public long TotalBytes { get; set; }
 
-        public string FullPath => Path.Combine(FilePath, FileName); 
+        public string FullPath => Path.Combine(FilePath, FileName);
     }
-
-
 }
+
